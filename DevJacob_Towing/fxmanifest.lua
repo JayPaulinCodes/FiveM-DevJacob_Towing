@@ -4,14 +4,17 @@ game "gta5"
 
 author "DevJacob"
 description "A realistic towing script for FiveM"
-version "0.1.0"
+version "1.1.0"
 
 shared_scripts {
+	"shared/utils.lua",
 	"shared/config.lua",
 }
 
 client_scripts {
 	"client/utils.lua",
-	"client/towTruck.lua",
+	"client/classes/towTruck.lua",
+	"client/classes/scoopBased.lua",
+	"client/classes/propBased.lua",
 	"client/main.lua",
 }

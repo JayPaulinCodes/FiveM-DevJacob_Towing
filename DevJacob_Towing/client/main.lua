@@ -61,13 +61,11 @@ Citizen.CreateThread(function()
 
         -- Check if the player can operate the bed
         if currentTowTruck ~= nil then
+            local lastVehIsTruck = currentTowTruck.truckHandle == vehicle
             local isInSeat = playerPed == GetPedInVehicleSeat(vehicle, -1)
-            local hasRemote = currentTowTruck:IsRemoteInUse()
-            local canControlBed = currentTowTruck:CanControlBed()
-
-            canOperateBed = currentTowTruck.truckHandle == vehicle 
-                and (isInSeat or hasRemote or canControlBed)
             
+            canOperateBed = lastVehIsTruck and (isInSeat or currentTowTruck:CanControlBed())
+
             if not canOperateBed then
                 currentTowTruck:SetAction(TowTruck.ACTION.NONE)
             end
@@ -77,47 +75,7 @@ Citizen.CreateThread(function()
     end
 end)
 
-RegisterKeyMapping("+DevJacob_LowerBed", "Lower Tow Truck Bed", "KEYBOARD", "PAGEDOWN")
-RegisterCommand("+DevJacob_LowerBed", function()
-
-    -- Ensure the current tow truck exists
-    if currentTowTruck == nil then
-        return
-    end
-    
-    -- Check if the player can operate the bed
-    if not canOperateBed then 
-        return
-    end
-
-    -- Ensure the other movement key isn't in use
-    if movementControls.raiseBed == true then
-        return
-    end
-
-    movementControls.lowerBed = true
-    currentTowTruck:SetAction(TowTruck.ACTION.LOWERING)
-end)
-
-RegisterCommand("-DevJacob_LowerBed", function()
-
-    -- Ensure the current tow truck exists
-    if currentTowTruck == nil then
-        return
-    end
-
-    -- Ensure the the movement key is infact in use
-    if movementControls.lowerBed == false then
-        return
-    end
-
-    movementControls.lowerBed = false
-    currentTowTruck:SetAction(TowTruck.ACTION.NONE)
-end)
-
-RegisterKeyMapping("+DevJacob_RaiseBed", "Raise Tow Truck Bed", "KEYBOARD", "PAGEUP")
-RegisterCommand("+DevJacob_RaiseBed", function()
-
+local function OnCommandBedRaise_Down()
     -- Ensure the current tow truck exists
     if currentTowTruck == nil then
         return
@@ -135,10 +93,9 @@ RegisterCommand("+DevJacob_RaiseBed", function()
 
     movementControls.raiseBed = true
     currentTowTruck:SetAction(TowTruck.ACTION.RAISING)
-end)
+end
 
-RegisterCommand("-DevJacob_RaiseBed", function()
-
+local function OnCommandBedRaise_Up()
     -- Ensure the current tow truck exists
     if currentTowTruck == nil then
         return
@@ -151,37 +108,53 @@ RegisterCommand("-DevJacob_RaiseBed", function()
 
     movementControls.raiseBed = false
     currentTowTruck:SetAction(TowTruck.ACTION.NONE)
-end)
+end
 
--- local RUN = false
--- RegisterCommand("test", function()
---     if RUN == true then 
---         RUN = false
---         return
---     end
+local function OnCommandBedLower_Down()
+    -- Ensure the current tow truck exists
+    if currentTowTruck == nil then
+        return
+    end
+    
+    -- Check if the player can operate the bed
+    if not canOperateBed then 
+        return
+    end
 
---     local playerPed = PlayerPedId()
---     local vehicle = GetVehiclePedIsIn(playerPed, true)
---     RUN = true
---     for i = 0.0, 1.0, 0.005 do
---         if not RUN then break end
---         print(i)
---         SetVehicleFixed(vehicle)
---         SetVehicleBulldozerArmPosition(vehicle, i, false)
---         Citizen.Wait(1000)
---     end
--- end)
+    -- Ensure the other movement key isn't in use
+    if movementControls.raiseBed == true then
+        return
+    end
 
+    movementControls.lowerBed = true
+    currentTowTruck:SetAction(TowTruck.ACTION.LOWERING)
+end
 
--- RegisterCommand("test2", function()
---     local playerPed = PlayerPedId()
---     local vehicle = GetVehiclePedIsIn(playerPed, true)
---     SetHydraulicRaised(vehicle, true)
--- end)
+local function OnCommandBedLower_Up()
+    -- Ensure the current tow truck exists
+    if currentTowTruck == nil then
+        return
+    end
 
+    -- Ensure the the movement key is infact in use
+    if movementControls.lowerBed == false then
+        return
+    end
 
--- RegisterCommand("test3", function()
---     local playerPed = PlayerPedId()
---     local vehicle = GetVehiclePedIsIn(playerPed, true)
---     SetHydraulicRaised(vehicle, false)
--- end)
+    movementControls.lowerBed = false
+    currentTowTruck:SetAction(TowTruck.ACTION.NONE)
+end
+
+RegisterKeyMapping("+towingBedLower", "Lower Tow Truck Bed", "KEYBOARD", "PAGEDOWN")
+RegisterKeyMapping("~!+towingBedLower", "Lower Tow Truck Bed - Alternate Key", "KEYBOARD", "RBRACKET")
+RegisterCommand("+towingBedLower", OnCommandBedLower_Down)
+RegisterCommand("-towingBedLower", OnCommandBedLower_Up)
+RegisterCommand("~!+towingBedLower", OnCommandBedLower_Down)
+RegisterCommand("~!-towingBedLower", OnCommandBedLower_Up)
+
+RegisterKeyMapping("+towingBedRaise", "Raise Tow Truck Bed", "KEYBOARD", "PAGEUP")
+RegisterKeyMapping("~!+towingBedRaise", "Raise Tow Truck Bed - Alternate Key", "KEYBOARD", "LBRACKET")
+RegisterCommand("+towingBedRaise", OnCommandBedRaise_Down)
+RegisterCommand("-towingBedRaise", OnCommandBedRaise_Up)
+RegisterCommand("~!+towingBedRaise", OnCommandBedRaise_Down)
+RegisterCommand("~!-towingBedRaise", OnCommandBedRaise_Up)

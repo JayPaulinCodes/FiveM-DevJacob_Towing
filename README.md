@@ -8,6 +8,8 @@ Installing the resource is simple, just download the latest version from the [re
 
 You can also add tow trucks from the "[DevJacob_TowingAssets]" folder which are tow trucks ready to use with the script.
 
+For detailed information about configuring the script, see the [configuration page](./.github/docs/CONFIGURATION.md).
+
 # License
 This project uses the **Mozilla Public License 2.0**
 <br>
